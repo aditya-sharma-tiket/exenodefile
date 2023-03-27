@@ -4,7 +4,14 @@ const cors = require("cors");
 var app = express();
 const port = 8080;
 var instance = new bonjour_service["default"]();
-
+// var hostile = require('hostile')
+// hostile.set('127.0.0.1', 'local.tiket.com', function (err) {
+//   if (err) {
+//     console.error(err)
+//   } else {
+//     console.log('set /etc/hosts successfully!')
+//   }
+// })
 app.use(cors());
 const set = new Set();
 instance
@@ -26,9 +33,11 @@ function getServices() {
       .find({ type: "tms", protocol: "tcp" })
       .on("up", (service) => {
         set.add(service);
+        console.log('service found:',service);
       })
       .on("down", (service) => {
         set.delete(service);
+        console.log('service removed:',service);
       });
   } catch (error) {
     console.log("Encounterd error : " + error);
@@ -36,6 +45,7 @@ function getServices() {
 }
 
 app.get("/getActiveServices", function (req, res) {
+  getServices();
   res.send({ activeServices: Array.from(set) });
 });
 
